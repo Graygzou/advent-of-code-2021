@@ -1,4 +1,4 @@
-# Advent Of Code Template 🎄
+# Advent Of Code 2021 🎄
 
 ![Build and update chart](https://github.com/Graygzou/workflows-path/badge.svg)
 
