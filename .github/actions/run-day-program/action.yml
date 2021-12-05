@@ -1,0 +1,44 @@
+name: run-day-program
+author: Grégoire Boiron (Graygzou)
+description: 
+inputs:
+  input-path:
+    description: "Path of the input file we want to use with the program."
+    required: true
+    default: './input.txt'
+  exe-folder:
+    description: "Directory where to .exe is located at"
+    required: true
+    default: './'
+  extra-params:
+    description: "Parameters needed to make the program run completely."
+    required: false
+    default: ""
+outputs:
+  execution-time:
+    description: "Total time in seconds of the program execution"
+    value: ${{ steps.get-execution-time.outputs.total-time }}
+runs:
+  using: "composite"
+  steps:
+    - name: save-the-current-time
+      id: start-timer
+      run: echo "::set-output name=START::$(Get-Date)"
+      shell: pwsh
+
+    - name: run build with input
+      run: ./${{ inputs.exe-folder }} .${{ inputs.input-path }} ${{ inputs.extra-params }}
+      shell: pwsh
+
+    - name: try display the start time
+      id: get-execution-time
+      run: |
+        $END=Get-Date
+        $DIFF=(New-TimeSpan -Start "${{ steps.start-timer.outputs.START }}" -End "$END").TotalMilliseconds
+        Write-Output "Time difference is: $DIFF"
+        echo "::set-output name=total-time::$DIFF"
+      shell: pwsh
+
+branding:
+  icon: play
+  color: red
