@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	dat, _ := os.ReadFile("./example.txt")
+	dat, _ := os.ReadFile("./input.txt")
 
 	//fmt.Print(string(dat))
 	//fmt.Println(string(dat))
@@ -58,19 +58,34 @@ func part1(array []string) (int64) {
 }
 
 func part2(array []string) (int64) {
-	list := make([]string, len(array[0]))
+	result := ComputeSubmarineMetric(FindMostCommonBitAtIndex, array)
+	oxygenGeneratorRating, _ := strconv.ParseInt(result, 2, 64)
+	fmt.Println(oxygenGeneratorRating)
+
+	result = ComputeSubmarineMetric(FindLeastCommonBitAtIndex, array)
+	co2ScrubberRating, _ := strconv.ParseInt(result, 2, 64)
+	fmt.Println(co2ScrubberRating)
+
+	return oxygenGeneratorRating * co2ScrubberRating
+}
+
+func ComputeSubmarineMetric(compare func(array []string, index int, equality bool) (int), array []string) (string) {
+	list := make([]string, len(array))
 	copy(list, array)
 	
 	bitIndex := 0
-	for len(list) > 0 && bitIndex < len(array[0]) {
-		mostCommonBit := FindMostCommonBitAtIndex(array, bitIndex)
-		fmt.Println("Intermediate value")
-		fmt.Println(mostCommonBit)
+	for len(list) > 1 && bitIndex < len(array[0]) {
+		mostCommonBit := compare(list, bitIndex, true)
+		fmt.Println(fmt.Sprintf("mostCommonBit : %d", mostCommonBit))
 
 		for i := 0; i < len(list); i++ {
 			// Remove it from the list if the bit does not contains the most common bit
 			currentBit, _ := strconv.Atoi(list[i][bitIndex:bitIndex+1])
+			fmt.Println(fmt.Sprintf("currentBit: %d", currentBit))
+			
+
 			if currentBit != mostCommonBit {
+				fmt.Println(fmt.Sprintf("intermediate value: %s", list[i]))
 				list = append(list[:i], list[i+1:]...)
 				i--
 			}
@@ -81,20 +96,11 @@ func part2(array []string) (int64) {
 
 		bitIndex++
 	}
-	
-	mostCommonBits := ""
-	leastCommonBits := ""
 
-	gammaRate, _ := strconv.ParseInt(mostCommonBits, 2, 64)
-	fmt.Println(gammaRate)
-
-	powerConsumption, _ := strconv.ParseInt(leastCommonBits, 2, 64)
-	fmt.Println(powerConsumption)
-
-	return gammaRate * powerConsumption
+	return list[0]
 }
 
-func FindMostCommonBitAtIndex(array []string, index int) (int) {
+func FindMostCommonBitAtIndex(array []string, index int, equality bool) (int) {
 	bitSum := 0
 
 	for _, s := range array {
@@ -103,8 +109,24 @@ func FindMostCommonBitAtIndex(array []string, index int) (int) {
 	}
 
 	result := 0
-	if bitSum > len(array)/2 {
+	if float64(bitSum) >= float64(len(array))/2.0 {
 		result = 1
+	}
+
+	return result
+}
+
+func FindLeastCommonBitAtIndex(array []string, index int, equality bool) (int) {
+	bitSum := 0
+
+	for _, s := range array {
+		intVar, _ := strconv.Atoi(s[index:index+1])
+		bitSum = bitSum + intVar
+	}
+
+	result := 1
+	if float64(bitSum) >= float64(len(array))/2.0 {
+		result = 0
 	}
 
 	return result
